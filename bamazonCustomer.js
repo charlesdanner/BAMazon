@@ -30,21 +30,23 @@ function afterConnection() {
         //connection.end();
     });
 }
+let exit = () => {
+    inquirer
+        .prompt([
+            {
+                name: "exit",
+                type: "list",
+                message: "Would you like to continue shopping with BAMazon?",
+                choices: ["Continue shopping", "Exit BAMazon"]
+            }
+        ]).then((inquirerResponse) => {
+            if(inquirerResponse.exit === "Continue shopping"){
+                afterConnection();
+            } else connection.end();
+        })
+}
 
-let checkStock = (productID, productQuantity) => {
-    connection.query("SELECT * FROM products WHERE id=?", [productID], function(err, res) {
-        // console.log(res);
-        // console.log(res[0].stock_quantity)
-        if(parseInt(res[0].stock_quantity) < parseInt(productQuantity)){
-            console.log(`Sorry, but we do not have enough ${res[0].product_name}s for that request`);
-        }else{
-            console.log("chicken")
-        }
-        connection.end()
-    }
-    )}
-
-function start() {
+let start = () => {
     inquirer
         .prompt([{
             name: "buy",
@@ -68,10 +70,46 @@ function start() {
         }]
         )
         .then(function (answer) {
-            console.log("answer.buy: " + answer.buy)
-            console.log("answer.quantity: " + answer.quantity)
-            checkStock(parseInt(answer.buy), parseInt(answer.quantity))
-            
+            let productId = parseInt(answer.buy);
+            let amountToBuy = parseInt(answer.quantity)
+            console.log("answer.buy: " + productId)
+            console.log("answer.quantity: " + amountToBuy)
+            connection.query("SELECT * FROM products WHERE id=?", [productId], function (err, res) {
+                // console.log(res);
+                let currentInventory = res[0].stock_quantity;
+                let unitPrice = res[0].price
+                productQuantity = parseInt(amountToBuy)
+                if (parseInt(res[0].stock_quantity) < parseInt(amountToBuy)) {
+                    console.log(`
+Sorry, but we do not have enough ${res[0].product_name}s for that request
+                    `);
+                    exit();
+                } else {
+                    connection.query(
+                        "UPDATE products SET ? WHERE ?",
+                        [
+                            {
+                                stock_quantity: (currentInventory - amountToBuy)
+                            },
+                            {
+                                id: productId
+                            }
+                        ],
+                        function (error) {
+                            if (error) throw error;
+                            console.log(`
+
+Thank you for your purchase. Your total is $${unitPrice * amountToBuy}
+                            
+                            `)
+                            exit();
+                        }
+                    )
+                }
+
+            }
+            )
+
         });
-        
+
 }
