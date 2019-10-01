@@ -31,6 +31,19 @@ function afterConnection() {
     });
 }
 
+let checkStock = (productID, productQuantity) => {
+    connection.query("SELECT * FROM products WHERE id=?", [productID], function(err, res) {
+        // console.log(res);
+        // console.log(res[0].stock_quantity)
+        if(parseInt(res[0].stock_quantity) < parseInt(productQuantity)){
+            console.log(`Sorry, but we do not have enough ${res[0].product_name}s for that request`);
+        }else{
+            console.log("chicken")
+        }
+        connection.end()
+    }
+    )}
+
 function start() {
     inquirer
         .prompt([{
@@ -54,42 +67,11 @@ function start() {
             }
         }]
         )
-        // .then(function (answer) {
-        //     // based on their answer, either call the bid or the post functions
-        //     switch (answer) {
-        //         case 1:
-        //             // code block
-        //             break;
-        //         case 2:
-        //             // code block
-        //             break;
-        //         case 3:
-        //             // code block
-        //             break;
-        //         case 4:
-        //             // code block
-        //             break;
-        //         case 5:
-        //             // code block
-        //             break;
-        //         case 6:
-        //             // code block
-        //             break;
-        //         case 7:
-        //             // code block
-        //             break;
-        //         case 8:
-        //             // code block
-        //             break;
-        //         case 9:
-        //             // code block
-        //             break;
-        //         case 10:
-        //             // code block
-        //             break;
-
-
-        //     }
-        // });
-        connection.end()
+        .then(function (answer) {
+            console.log("answer.buy: " + answer.buy)
+            console.log("answer.quantity: " + answer.quantity)
+            checkStock(parseInt(answer.buy), parseInt(answer.quantity))
+            
+        });
+        
 }
