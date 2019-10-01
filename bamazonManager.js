@@ -30,7 +30,7 @@ let start = () => {
         switch (inquirerResponse.action) {
 
             case "View Products for Sale":
-               viewProductsForSale();
+                viewProductsForSale();
                 break;
 
             case "View Low Inventory":
@@ -59,18 +59,18 @@ let exit = () => {
                 choices: ["Continue Working", "Exit BAMazon Manager"]
             }
         ]).then((inquirerResponse) => {
-            if(inquirerResponse.exit === "Continue Working"){
+            if (inquirerResponse.exit === "Continue Working") {
                 start();
             } else connection.end();
         })
 }
 
-let viewProductsForSale = () =>{
-    connection.query("SELECT * FROM products", function(error, res){
-        if(error){
+let viewProductsForSale = () => {
+    connection.query("SELECT * FROM products", function (error, res) {
+        if (error) {
             console.log(error)
         }
-        for(let i = 0; i < res.length; i++){
+        for (let i = 0; i < res.length; i++) {
             console.log(`| ${res[i].id} | ${res[i].product_name} | $${res[i].price} | ${res[i].stock_quantity}
 ------------------------------------------------------------------`)
         }
@@ -79,14 +79,12 @@ let viewProductsForSale = () =>{
 }
 
 let viewLowInventory = () => {
-    connection.query("SELECT * FROM products", function(error, res){
-        if(error){
+    connection.query("SELECT * FROM products WHERE stock_quantity<=?", [4], function (error, res) {
+        if (error) {
             console.log(error)
         }
-        for(let i = 0; i < res.length; i++){
-            if(res[i].stock_quantity < 5){
-                console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].stock_quantity}`)
-            }           
+        for (let i = 0; i < res.length; i++) {
+            console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].stock_quantity}`)
         }
         exit();
     })
