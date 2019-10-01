@@ -16,16 +16,8 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
-    afterConnection()
+    start()
 });
-
-function afterConnection() {
-    connection.query("SELECT * FROM products", function (err, res) {
-
-        start()
-        //connection.end();
-    });
-}
 
 let start = () => {
     inquirer.prompt([{
@@ -57,6 +49,22 @@ let start = () => {
     })
 }
 
+let exit = () => {
+    inquirer
+        .prompt([
+            {
+                name: "exit",
+                type: "list",
+                message: "Have you completed your tasks?",
+                choices: ["Continue Working", "Exit BAMazon Manager"]
+            }
+        ]).then((inquirerResponse) => {
+            if(inquirerResponse.exit === "Continue Working"){
+                start();
+            } else connection.end();
+        })
+}
+
 let viewProductsForSale = () =>{
     connection.query("SELECT * FROM products", function(error, res){
         if(error){
@@ -66,5 +74,6 @@ let viewProductsForSale = () =>{
             console.log(`| ${res[i].id} | ${res[i].product_name} | $${res[i].price} | ${res[i].stock_quantity}
 ------------------------------------------------------------------`)
         }
+        exit();
     })
 }
