@@ -30,11 +30,11 @@ let start = () => {
         switch (inquirerResponse.action) {
 
             case "View Products for Sale":
-               viewProductsForSale()
+               viewProductsForSale();
                 break;
 
             case "View Low Inventory":
-                console.log("action taken: " + inquirerResponse.action)
+                viewLowInventory();
                 break;
 
             case "Add to Inventory":
@@ -73,6 +73,20 @@ let viewProductsForSale = () =>{
         for(let i = 0; i < res.length; i++){
             console.log(`| ${res[i].id} | ${res[i].product_name} | $${res[i].price} | ${res[i].stock_quantity}
 ------------------------------------------------------------------`)
+        }
+        exit();
+    })
+}
+
+let viewLowInventory = () => {
+    connection.query("SELECT * FROM products", function(error, res){
+        if(error){
+            console.log(error)
+        }
+        for(let i = 0; i < res.length; i++){
+            if(res[i].stock_quantity < 5){
+                console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].stock_quantity}`)
+            }           
         }
         exit();
     })
