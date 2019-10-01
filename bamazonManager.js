@@ -36,23 +36,35 @@ let start = () => {
 
     }]).then(function (inquirerResponse) {
         switch (inquirerResponse.action) {
-            
+
             case "View Products for Sale":
-                // code block
+               viewProductsForSale()
                 break;
 
             case "View Low Inventory":
-                //do something 
+                console.log("action taken: " + inquirerResponse.action)
                 break;
 
             case "Add to Inventory":
-                //do something
+                console.log("action taken: " + inquirerResponse.action)
                 break;
 
             case "Add New Product":
-                //do something
+                console.log("action taken: " + inquirerResponse.action)
                 break;
 
+        }
+    })
+}
+
+let viewProductsForSale = () =>{
+    connection.query("SELECT * FROM products", function(error, res){
+        if(error){
+            console.log(error)
+        }
+        for(let i = 0; i < res.length; i++){
+            console.log(`| ${res[i].id} | ${res[i].product_name} | $${res[i].price} | ${res[i].stock_quantity}
+------------------------------------------------------------------`)
         }
     })
 }
