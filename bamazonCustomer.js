@@ -1,7 +1,7 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+let mysql = require("mysql");
+let inquirer = require("inquirer");
 
-var connection = mysql.createConnection({
+let connection = mysql.createConnection({
     host: "localhost",
 
     port: 3306,
@@ -13,14 +13,14 @@ var connection = mysql.createConnection({
 });
 
 // connect to the mysql server and sql database
-connection.connect(function (err) {
+connection.connect(err => {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     afterConnection()
 });
 
-function afterConnection() {
-    connection.query("SELECT * FROM products", function (err, res) {
+let afterConnection = () => {
+    connection.query("SELECT * FROM products", (err, res) => {
         if (err) throw err;
         for (let i = 0; i < res.length; i++) {
             console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].price} |`)
@@ -52,7 +52,7 @@ let start = () => {
             name: "buy",
             type: "input",
             message: "What is the ID of the product you would like to purchase?",
-            validate: function (value) {
+            validate: value => {
                 if (!isNaN(value) && value > 0 && value < 11) {
                     return true;
                 } else return false;
@@ -62,18 +62,18 @@ let start = () => {
             name: "quantity",
             type: "input",
             message: "Okay, how many would you like to purchase?",
-            validate: function (value) {
+            validate: value => {
                 if (!isNaN(value) && value > 0) {
                     return true;
                 } else return false;
             }
         }]
         )
-        .then(function (answer) {
+        .then(answer => {
             let productId = parseInt(answer.buy);
-            let amountToBuy = parseInt(answer.quantity)
-            connection.query("SELECT * FROM products WHERE id=?", [productId], function (err, res) {
-                if(err){
+            let amountToBuy = parseInt(answer.quantity);
+            connection.query("SELECT * FROM products WHERE id=?", [productId], (err, res) => {
+                if (err) {
                     console.log(err);
                 }
                 let currentInventory = res[0].stock_quantity;
@@ -86,18 +86,15 @@ Sorry, but we do not have enough ${res[0].product_name}s for that request
                     `);
                     exit();
                 } else {
-                    connection.query(
-                        "UPDATE products SET ? WHERE ?",
-                        [
-                            {
-                                stock_quantity: (currentInventory - amountToBuy),
-                                product_sales: originalSales + (unitPrice * amountToBuy)
-                            },
-                            {
-                                id: productId
-                            }
-                        ],
-                        function (error) {
+                    connection.query("UPDATE products SET ? WHERE ?",
+                        [{
+                            stock_quantity: (currentInventory - amountToBuy),
+                            product_sales: originalSales + (unitPrice * amountToBuy)
+                        },
+                        {
+                            id: productId
+                        }],
+                        error => {
                             if (error) throw error;
                             console.log(`
 
