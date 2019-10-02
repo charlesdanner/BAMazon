@@ -40,7 +40,7 @@ let exit = () => {
                 choices: ["Continue shopping", "Exit BAMazon"]
             }
         ]).then((inquirerResponse) => {
-            if(inquirerResponse.exit === "Continue shopping"){
+            if (inquirerResponse.exit === "Continue shopping") {
                 afterConnection();
             } else connection.end();
         })

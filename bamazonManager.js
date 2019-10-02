@@ -13,7 +13,7 @@ var connection = mysql.createConnection({
 });
 
 // connect to the mysql server and sql database
-connection.connect(function (err) {
+connection.connect(err => {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     start()
@@ -26,7 +26,7 @@ let start = () => {
         type: "list",
         choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"]
 
-    }]).then(function (inquirerResponse) {
+    }]).then(inquirerResponse => {
         switch (inquirerResponse.action) {
 
             case "View Products for Sale":
@@ -38,7 +38,7 @@ let start = () => {
                 break;
 
             case "Add to Inventory":
-                console.log("action taken: " + inquirerResponse.action)
+                addToInventory();
                 break;
 
             case "Add New Product":
@@ -87,5 +87,59 @@ let viewLowInventory = () => {
             console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].stock_quantity}`)
         }
         exit();
+    })
+}
+
+let addToInventory = () => {
+    inquirer.prompt([
+        {
+            name: "productID",
+            message: "Input the product ID that you would like to purchase more of",
+            type: "input",
+            validate: value => {
+                if (!isNaN(value) && value <= 0) {
+                    return false;
+                } return true;
+            }
+        },
+        {
+            name: "purchaseAmount",
+            message: "Input the size of the order you would like to place.",
+            type: "input",
+            validate: value => {
+                if (!isNaN(value) && value <= 0) {
+                    return false;
+                } return true;
+            }
+        }
+    ]).then((answer) => {
+        let productId = parseInt(answer.productID);
+        console.log(productId)
+        let purchaseQuantity = parseInt(answer.purchaseAmount);
+        console.log(purchaseQuantity)
+        let originalQuantity;
+        connection.query('SELECT * FROM products WHERE id=?', [productId],  (error, res) => {
+            if (error) {
+                console.log(error)
+            }
+            originalQuantity = res[0].stock_quantity;
+            console.log(res[0].stock_quantity);
+            connection.query('UPDATE products SET ? WHERE ?',
+                [{
+                    stock_quantity: purchaseQuantity + originalQuantity,
+                },
+                {
+                    id: productId
+                }
+                ],
+                function () {
+                    console.log(`Your order has been received and the inventory has been updated.`),
+                        exit()
+                }
+
+            )
+
+        });
+
     })
 }
