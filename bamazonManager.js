@@ -20,6 +20,8 @@ connection.connect(err => {
 });
 
 let start = () => {
+    console.log(`-------------------------------------------------------------------------
+    `)
     inquirer.prompt([{
         name: "action",
         message: "Select Desired Action",
@@ -114,16 +116,12 @@ let addToInventory = () => {
         }
     ]).then((answer) => {
         let productId = parseInt(answer.productID);
-        console.log(productId)
         let purchaseQuantity = parseInt(answer.purchaseAmount);
-        console.log(purchaseQuantity)
-        let originalQuantity;
         connection.query('SELECT * FROM products WHERE id=?', [productId], (error, res) => {
             if (error) {
                 console.log(error)
             }
-            originalQuantity = res[0].stock_quantity;
-            console.log(res[0].stock_quantity);
+            let originalQuantity = res[0].stock_quantity;
             connection.query('UPDATE products SET ? WHERE ?',
                 [{
                     stock_quantity: purchaseQuantity + originalQuantity,
@@ -132,7 +130,10 @@ let addToInventory = () => {
                     id: productId
                 }
                 ],
-                function () {
+                function (error, results) {
+                    if(error){
+                        console.log(error)
+                    } console.log(results)
                     console.log(`Your order has been received and the inventory has been updated.`),
                         exit()
                 }
@@ -193,12 +194,13 @@ let addNewProduct = () => {
         let quantity = answer.quantity || 0;
         connection.query(`INSERT INTO products (product_name,department_name,price,stock_quantity) 
                                         VALUES ('${newProduct}', '${department}', ${price}, ${quantity})`
-        ), function(err, results, fields){
-            if(error){
+        , function(err, results){
+            if(err){
                 console.log(error)
             }
+            console.log(results)
             console.log(`An order for ${newProduct}s has been placed and the product has been added to the database.`)
             exit();
-        }
+        })
     })
 }
