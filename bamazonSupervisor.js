@@ -26,7 +26,7 @@ let afterConnection = () => {
             name: "supervisorFunctions",
             message: "What would you like to do?",
             type: "list",
-            choices: ["View Product Sales By Department", "Create New Department"]
+            choices: ["View Product Sales By Department", "Create New Department", "Exit"]
         }
     ]).then(inquirerResponse => {
         if(inquirerResponse.supervisorFunctions === "View Product Sales By Department"){
@@ -62,8 +62,9 @@ let afterConnection = () => {
                     if(err){
                         console.log(err)
                     } console.log(`New Department: ${newDepartment} has been successfully created.`);
+                    afterConnection();
                 }
             )})
-        }
+        } else connection.end();
     })
 }
