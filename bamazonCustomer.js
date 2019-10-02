@@ -72,12 +72,13 @@ let start = () => {
         .then(function (answer) {
             let productId = parseInt(answer.buy);
             let amountToBuy = parseInt(answer.quantity)
-            console.log("answer.buy: " + productId)
-            console.log("answer.quantity: " + amountToBuy)
             connection.query("SELECT * FROM products WHERE id=?", [productId], function (err, res) {
-                // console.log(res);
+                if(err){
+                    console.log(err);
+                }
                 let currentInventory = res[0].stock_quantity;
                 let unitPrice = res[0].price
+                let originalSales = res[0].product_sales;
                 productQuantity = parseInt(amountToBuy)
                 if (parseInt(res[0].stock_quantity) < parseInt(amountToBuy)) {
                     console.log(`
@@ -89,7 +90,8 @@ Sorry, but we do not have enough ${res[0].product_name}s for that request
                         "UPDATE products SET ? WHERE ?",
                         [
                             {
-                                stock_quantity: (currentInventory - amountToBuy)
+                                stock_quantity: (currentInventory - amountToBuy),
+                                product_sales: originalSales + (unitPrice * amountToBuy)
                             },
                             {
                                 id: productId
