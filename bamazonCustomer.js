@@ -1,5 +1,6 @@
-let mysql = require("mysql");
-let inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const {table} = require('table');
 
 let connection = mysql.createConnection({
     host: "localhost",
@@ -12,7 +13,7 @@ let connection = mysql.createConnection({
     database: "bamazonDB"
 });
 
-// connect to the mysql server and sql database
+
 connection.connect(err => {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
@@ -22,12 +23,22 @@ connection.connect(err => {
 let afterConnection = () => {
     connection.query("SELECT * FROM products", (err, res) => {
         if (err) throw err;
-        for (let i = 0; i < res.length; i++) {
-            console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].price} |`)
+        let output;
+        let data = [
+            ["Product ID", "Product Name", "Price"]
+        ];
+        for(let i = 0; i < res.length; i++){
+            let productArr = [res[i].id, res[i].product_name, res[i].price]
+            data.push(productArr)
         }
+        output = table(data);
+        console.log(output);
+
+        // for (let i = 0; i < res.length; i++) {
+        //     console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].price} |`)
+        // }
 
         start()
-        //connection.end();
     });
 }
 let exit = () => {
@@ -53,7 +64,7 @@ let start = () => {
             type: "input",
             message: "What is the ID of the product you would like to purchase?",
             validate: value => {
-                if (!isNaN(value) && value > 0 && value < 11) {
+                if (!isNaN(value) && value > 0) {
                     return true;
                 } else return false;
             }
@@ -108,7 +119,5 @@ Thank you for your purchase. Your total is $${unitPrice * amountToBuy}
 
             }
             )
-
-        });
-
+        })
 }

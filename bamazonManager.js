@@ -1,7 +1,8 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const {table} = require('table')
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: "localhost",
 
     port: 3306,
@@ -69,25 +70,36 @@ let exit = () => {
 
 let viewProductsForSale = () => {
     connection.query("SELECT * FROM products", function (error, res) {
+        let data = [
+            ["Product ID", "Product Name", "Price", "In Stock"]
+        ];
         if (error) {
             console.log(error)
         }
         for (let i = 0; i < res.length; i++) {
-            console.log(`| ${res[i].id} | ${res[i].product_name} | $${res[i].price} | ${res[i].stock_quantity}
-------------------------------------------------------------------`)
+            let dataArr = [res[i].id, res[i].product_name, res[i].price, res[i].stock_quantity]
+            data.push(dataArr)
         }
+        let output = table(data);
+        console.log(output);
         exit();
     })
 }
 
 let viewLowInventory = () => {
     connection.query("SELECT * FROM products WHERE stock_quantity<=?", [4], function (error, res) {
+        let data = [
+            ["Product ID", "Product Name", "In Stock"]
+        ];
         if (error) {
             console.log(error)
         }
         for (let i = 0; i < res.length; i++) {
-            console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].stock_quantity}`)
+            dataArr = [res[i].id, res[i].product_name,res[i].stock_quantity];
+            data.push(dataArr);
         }
+        let outcome = table(data);
+        console.log(outcome);
         exit();
     })
 }
