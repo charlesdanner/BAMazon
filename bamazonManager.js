@@ -42,7 +42,7 @@ let start = () => {
                 break;
 
             case "Add New Product":
-                console.log("action taken: " + inquirerResponse.action)
+                addNewProduct();
                 break;
 
         }
@@ -118,7 +118,7 @@ let addToInventory = () => {
         let purchaseQuantity = parseInt(answer.purchaseAmount);
         console.log(purchaseQuantity)
         let originalQuantity;
-        connection.query('SELECT * FROM products WHERE id=?', [productId],  (error, res) => {
+        connection.query('SELECT * FROM products WHERE id=?', [productId], (error, res) => {
             if (error) {
                 console.log(error)
             }
@@ -141,5 +141,64 @@ let addToInventory = () => {
 
         });
 
+    })
+}
+
+let addNewProduct = () => {
+    inquirer.prompt([
+        {
+            name: "newProduct",
+            message: "Please input the name of the new product you'd like to add.",
+            type: "input",
+            validation: (value) => {
+                if (value !== null) {
+                    return true
+                } else return false
+            }
+        },
+        {
+            name: "departmentName",
+            message: "What department does this item belong in?",
+            type: "input",
+            validation: (value) => {
+                if (value !== null) {
+                    return true
+                } else return false
+            }
+        },
+        {
+            name: "price",
+            message: "How much will this item be sold for?",
+            type: "input",
+            validation: (value) =>{
+                if(!isNaN(value) && value !== null){
+                    return true;
+                } else return false;
+            }
+        },
+        {
+            name: "quantity",
+            message: "How many would you like to initially order for sale?",
+            type: "input",
+            validation: (value) => {
+                if(isNaN(value)){
+                    return false
+                } else return true;
+            }
+        }
+    ]).then((answer) => {
+        let newProduct = answer.newProduct;
+        let department = answer.departmentName;
+        let price = answer.price;
+        let quantity = answer.quantity || 0;
+        connection.query(`INSERT INTO products (product_name,department_name,price,stock_quantity) 
+                                        VALUES ('${newProduct}', '${department}', ${price}, ${quantity})`
+        ), function(err, results, fields){
+            if(error){
+                console.log(error)
+            }
+            console.log(`An order for ${newProduct}s has been placed and the product has been added to the database.`)
+            exit();
+        }
     })
 }
