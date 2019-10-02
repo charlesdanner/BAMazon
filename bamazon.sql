@@ -19,8 +19,15 @@ CREATE TABLE departments (
     PRIMARY KEY (department_id)
 );
 
+INSERT INTO departments (department_name, over_head_costs)
+				VALUES	('snacks', 300),
+						('toys', 800),
+                        ('electronics', 2000),
+                        ('books', 400),
+                        ('furniture', 1000);
+
 INSERT INTO products (product_name, department_name, price, stock_quantity) 
-values 	('doritos', 'snacks', 6.50, 50), 
+VALUES 	('doritos', 'snacks', 6.50, 50), 
 		('gushers', 'snacks', 4.99, 100), 
         ('barbie', 'toys', 10.99, 40),
         ('slinky', 'toys', 5.00, 30),
