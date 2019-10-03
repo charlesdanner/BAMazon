@@ -1,47 +1,42 @@
 const mysql = require("mysql");
-const inquirer = require("inquirer");
+const inquirer = require("inquirer");       //node modules being required for usage
 const {table} = require('table');
 
-let connection = mysql.createConnection({
+let connection = mysql.createConnection({       //using the mysql node module to connect to my server
     host: "localhost",
 
-    port: 3306,
+    port: 3306,             //port number
 
-    user: "root",
+    user: "root",               //my user name
 
-    password: "root1",
+    password: "root1",              //password and database name
     database: "bamazonDB"
 });
 
 
 connection.connect(err => {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId);
+    console.log("connected as id " + connection.threadId);          //after connection it states your connection thread ID
     afterConnection()
 });
 
 let afterConnection = () => {
-    connection.query("SELECT * FROM products", (err, res) => {
+    connection.query("SELECT * FROM products", (err, res) => {          //function being run after you connect
         if (err) throw err;
-        let output;
+        let output;                                                         //query the server and select all the products for sale to be displayed in the terminal
         let data = [
-            ["Product ID", "Product Name", "Price"]
+            ["Product ID", "Product Name", "Price"]                     //data array that is used to populate the table that gets logged out
         ];
         for(let i = 0; i < res.length; i++){
-            let productArr = [res[i].id, res[i].product_name, res[i].price]
-            data.push(productArr)
+            let productArr = [res[i].id, res[i].product_name, res[i].price]     //for loop used to loop through the data the server is sending back and populate the table
+            data.push(productArr)       //productArr is each individual row in the table. each row gets pushed.
         }
-        output = table(data);
+        output = table(data);       //table gets console logged to the terminal
         console.log(output);
-
-        // for (let i = 0; i < res.length; i++) {
-        //     console.log(`| ${res[i].id} | ${res[i].product_name} | ${res[i].price} |`)
-        // }
-
-        start()
+        buyProduct()
     });
 }
-let exit = () => {
+let exit = () => {              //function that lets users either exit or continue shopping based on which choice they make.
     inquirer
         .prompt([
             {
@@ -57,10 +52,10 @@ let exit = () => {
         })
 }
 
-let start = () => {
+let buyProduct = () => {            //function being run in order to buy something
     inquirer
         .prompt([{
-            name: "buy",
+            name: "buy",                        //prompts users for which product they want to buy
             type: "input",
             message: "What is the ID of the product you would like to purchase?",
             validate: value => {
@@ -72,7 +67,7 @@ let start = () => {
         {
             name: "quantity",
             type: "input",
-            message: "Okay, how many would you like to purchase?",
+            message: "Okay, how many would you like to purchase?",          //prompts users for how much of whatever they want to buy
             validate: value => {
                 if (!isNaN(value) && value > 0) {
                     return true;
@@ -81,7 +76,7 @@ let start = () => {
         }]
         )
         .then(answer => {
-            let productId = parseInt(answer.buy);
+            let productId = parseInt(answer.buy);                              
             let amountToBuy = parseInt(answer.quantity);
             connection.query("SELECT * FROM products WHERE id=?", [productId], (err, res) => {
                 if (err) {
@@ -113,11 +108,4 @@ Thank you for your purchase. Your total is $${unitPrice * amountToBuy}
                             
                             `)
                             exit();
-                        }
-                    )
-                }
-
-            }
-            )
-        })
-}
+})}})})}
