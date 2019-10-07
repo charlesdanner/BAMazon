@@ -33,3 +33,4 @@ The supervisor file is where the application got a little tricky to figure out h
 ### Link
 
 Because BAMazon is a terminal based application that runs based off of a server that is being run on the user's computer, a live version is not able to be linked to for use; however, below is a link to a screen recording of the app in action.
+https://github.com/charlesdanner/BAMazon/raw/master/recording/screenRecording.wmv
