@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const {table} = require('table')
+const { table } = require('table')
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -20,7 +20,7 @@ connection.connect(err => {
     start()
 });
 
-let start = () => {
+const start = () => {
     console.log(`-------------------------------------------------------------------------
     `)
     inquirer.prompt([{
@@ -52,7 +52,7 @@ let start = () => {
     })
 }
 
-let exit = () => {
+const exit = () => {
     inquirer
         .prompt([
             {
@@ -68,43 +68,43 @@ let exit = () => {
         })
 }
 
-let viewProductsForSale = () => {
-    connection.query("SELECT * FROM products", function (error, res) {
-        let data = [
+const viewProductsForSale = () => {
+    connection.query("SELECT * FROM products", (error, res) => {
+        const data = [
             ["Product ID", "Product Name", "Price", "In Stock"]
         ];
         if (error) {
             console.log(error)
         }
-        for (let i = 0; i < res.length; i++) {
+        for (var i = 0; i < res.length; i++) {
             let dataArr = [res[i].id, res[i].product_name, res[i].price, res[i].stock_quantity]
             data.push(dataArr)
         }
-        let output = table(data);
+        const output = table(data);
         console.log(output);
         exit();
     })
 }
 
-let viewLowInventory = () => {
-    connection.query("SELECT * FROM products WHERE stock_quantity<=?", [4], function (error, res) {
-        let data = [
+const viewLowInventory = () => {
+    connection.query("SELECT * FROM products WHERE stock_quantity<=?", [4], (error, res) => {
+        const data = [
             ["Product ID", "Product Name", "In Stock"]
         ];
         if (error) {
             console.log(error)
         }
         for (let i = 0; i < res.length; i++) {
-            dataArr = [res[i].id, res[i].product_name,res[i].stock_quantity];
+            dataArr = [res[i].id, res[i].product_name, res[i].stock_quantity];
             data.push(dataArr);
         }
-        let outcome = table(data);
+        const outcome = table(data);
         console.log(outcome);
         exit();
     })
 }
 
-let addToInventory = () => {
+const addToInventory = () => {
     inquirer.prompt([
         {
             name: "productID",
@@ -143,21 +143,17 @@ let addToInventory = () => {
                 }
                 ],
                 function (error, results) {
-                    if(error){
+                    if (error) {
                         console.log(error)
                     } console.log(results)
                     console.log(`Your order has been received and the inventory has been updated.`),
                         exit()
-                }
-
-            )
-
-        });
-
+                })
+        })
     })
 }
 
-let addNewProduct = () => {
+const addNewProduct = () => {
     inquirer.prompt([
         {
             name: "newProduct",
@@ -173,7 +169,7 @@ let addNewProduct = () => {
             name: "departmentName",
             message: "What department does this item belong in?",
             type: "input",
-            validation: (value) => {
+            validation: value => {
                 if (value !== null) {
                     return true
                 } else return false
@@ -183,8 +179,8 @@ let addNewProduct = () => {
             name: "price",
             message: "How much will this item be sold for?",
             type: "input",
-            validation: (value) =>{
-                if(!isNaN(value) && value !== null){
+            validation: value => {
+                if (!isNaN(value) && value !== null) {
                     return true;
                 } else return false;
             }
@@ -193,26 +189,26 @@ let addNewProduct = () => {
             name: "quantity",
             message: "How many would you like to initially order for sale?",
             type: "input",
-            validation: (value) => {
-                if(isNaN(value)){
+            validation: value => {
+                if (isNaN(value)) {
                     return false
                 } else return true;
             }
         }
-    ]).then((answer) => {
+    ]).then(answer => {
         let newProduct = answer.newProduct;
         let department = answer.departmentName;
         let price = answer.price;
         let quantity = answer.quantity || 0;
         connection.query(`INSERT INTO products (product_name,department_name,price,stock_quantity) 
                                         VALUES ('${newProduct}', '${department}', ${price}, ${quantity})`
-        , function(err, results){
-            if(err){
-                console.log(error)
-            }
-            console.log(results)
-            console.log(`An order for ${newProduct}s has been placed and the product has been added to the database.`)
-            exit();
-        })
+            ,(err, results) => {
+                if (err) {
+                    console.log(error)
+                }
+                console.log(results)
+                console.log(`An order for ${newProduct}s has been placed and the product has been added to the database.`)
+                exit();
+            })
     })
 }

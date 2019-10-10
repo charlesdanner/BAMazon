@@ -2,7 +2,7 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");       //node modules being required for usage
 const {table} = require('table');
 
-let connection = mysql.createConnection({       //using the mysql node module to connect to my server
+const connection = mysql.createConnection({       //using the mysql node module to connect to my server
     host: "localhost",
 
     port: 3306,             //port number
@@ -20,7 +20,7 @@ connection.connect(err => {
     afterConnection()
 });
 
-let afterConnection = () => {
+const afterConnection = () => {
     connection.query("SELECT * FROM products", (err, res) => {          //function being run after you connect
         if (err) throw err;
         let output;                                                         //query the server and select all the products for sale to be displayed in the terminal
@@ -36,7 +36,7 @@ let afterConnection = () => {
         buyProduct()
     });
 }
-let exit = () => {              //function that lets users either exit or continue shopping based on which choice they make.
+const exit = () => {              //function that lets users either exit or continue shopping based on which choice they make.
     inquirer
         .prompt([
             {
@@ -52,7 +52,7 @@ let exit = () => {              //function that lets users either exit or contin
         })
 }
 
-let buyProduct = () => {            //function being run in order to buy something
+const buyProduct = () => {            //function being run in order to buy something
     inquirer
         .prompt([{
             name: "buy",                        //prompts users for which product they want to buy
@@ -76,8 +76,8 @@ let buyProduct = () => {            //function being run in order to buy somethi
         }]
         )
         .then(answer => {
-            let productId = parseInt(answer.buy);                              
-            let amountToBuy = parseInt(answer.quantity);
+            const productId = parseInt(answer.buy);                              
+            const amountToBuy = parseInt(answer.quantity);
             connection.query("SELECT * FROM products WHERE id=?", [productId], (err, res) => {
                 if (err) {
                     console.log(err);
@@ -109,24 +109,3 @@ Thank you for your purchase. Your total is $${unitPrice * amountToBuy}
                             `)
                             exit();
 })}})})}
-
-
-
-// INSERT INTO departments (department_name, over_head_costs)
-// 				VALUES	('snacks', 300),
-// 						('toys', 800),
-//                         ('electronics', 2000),
-//                         ('books', 400),
-//                         ('furniture', 1000);
-
-// INSERT INTO products (product_name, department_name, price, stock_quantity, product_sales) 
-// VALUES 	('doritos', 'snacks', 6.50, 50, 650), 
-// 		('gushers', 'snacks', 4.99, 100, 325.25), 
-//         ('barbie', 'toys', 10.99, 40, 307.72),
-//         ('slinky', 'toys', 5.00, 30, 150),
-//         ('xbox', 'electronics', 200, 20, 3000), 
-//         ('playstation4', 'electronics', 250, 20, 3500), 
-//         ('Stranger in a Strange Land', 'books', 10.25, 20, 102.50), 
-//         ('Starship Troopers', 'books', 10.25, 20, 153.75), 
-//         ('chair', 'furniture', 30.99, 20, 1797.42), 
-//         ('sofa', 'furniture', 100.50, 20, 603);

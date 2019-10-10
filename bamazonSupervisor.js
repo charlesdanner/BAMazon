@@ -1,8 +1,8 @@
-let mysql = require("mysql");
-let inquirer = require("inquirer");
-let { table } = require('table');
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const { table } = require('table');
 
-let connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: "localhost",
 
     port: 3306,
@@ -20,7 +20,7 @@ connection.connect(err => {
     afterConnection()
 });
 
-let afterConnection = () => {
+const afterConnection = () => {
     inquirer.prompt([
         {
             name: "supervisorFunctions",
@@ -36,7 +36,7 @@ let afterConnection = () => {
         } else connection.end();
     })
 }
-let viewProductSalesByDepartment = () => {
+const viewProductSalesByDepartment = () => {
     connection.query(
         `SELECT 
                 department_id, department_name, over_head_costs, product_sales,
@@ -50,27 +50,27 @@ let viewProductSalesByDepartment = () => {
             if(err){
                 console.log(err)
             }
-            let data = [
+            const data = [
                 ["Department ID", "Department Name", "Over Head Costs", "Product Sales", "Total Profit"]
             ]
             for(let i = 0; i < results.length; i++){
                let dataArr = [results[i].department_id, results[i].department_name, results[i].over_head_costs, results[i].product_sales, results[i].total_profit];
                data.push(dataArr)
             }
-            let output = table(data);
+            const output = table(data);
             console.log(output);
             afterConnection();
         }
     )
 }
 
-let createNewDepartment = () => {
+const createNewDepartment = () => {
     inquirer.prompt([
         {
             name: "newDept",
             message: "What is the name of the new department you want to create?",
             type: "input",
-            validation: (value) => {
+            validation: value => {
                 if (value.length > 3 && isNaN(value)) {
                     return true
                 } return false
@@ -80,15 +80,15 @@ let createNewDepartment = () => {
             name: "overHead",
             message: "What is the estimated overhead this new department will cost?",
             type: "input",
-            validation: (value) => {
+            validation: value => {
                 if (!isNaN(value) && value > 0) {
                     return true;
                 } else return false;
             }
         }
     ]).then(answer => {
-        let newDepartment = answer.newDept;
-        let overHead = answer.overHead;
+        const newDepartment = answer.newDept;
+        const overHead = answer.overHead;
         connection.query(`INSERT INTO departments (department_name, over_head_costs) 
                                 VALUES ('${newDepartment}', ${overHead})`,
             (err, results) => {
