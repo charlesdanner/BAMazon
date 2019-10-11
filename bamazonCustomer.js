@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");       //node modules being required for usage
 const {table} = require('table');
+const InquirerResponse = require('./constructors');
 
 const connection = mysql.createConnection({       //using the mysql node module to connect to my server
     host: "localhost",

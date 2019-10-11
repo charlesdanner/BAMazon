@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const { table } = require('table')
+const { table } = require('table');
+const InquirerQuestion = require('./constructors')
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -21,47 +22,39 @@ connection.connect(err => {
 });
 
 const start = () => {
+    const ManagerWhatToDo = new InquirerQuestion("action", "Select Desired Action", "list", ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"])
     console.log(`-------------------------------------------------------------------------
     `)
-    inquirer.prompt([{
-        name: "action",
-        message: "Select Desired Action",
-        type: "list",
-        choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"]
+    inquirer.prompt([ManagerWhatToDo])
+        .then(inquirerResponse => {
+            switch (inquirerResponse.action) {
 
-    }]).then(inquirerResponse => {
-        switch (inquirerResponse.action) {
+                case "View Products for Sale":
+                    viewProductsForSale();
+                    break;
 
-            case "View Products for Sale":
-                viewProductsForSale();
-                break;
+                case "View Low Inventory":
+                    viewLowInventory();
+                    break;
 
-            case "View Low Inventory":
-                viewLowInventory();
-                break;
+                case "Add to Inventory":
+                    addToInventory();
+                    break;
 
-            case "Add to Inventory":
-                addToInventory();
-                break;
+                case "Add New Product":
+                    addNewProduct();
+                    break;
 
-            case "Add New Product":
-                addNewProduct();
-                break;
-
-        }
-    })
+            }
+        })
 }
 
 const exit = () => {
+    const WhatToDo = new InquirerQuestion("exit", "Have you completed your tasks?", "list", ["Continue Working", "Exit BAMazon Manager"])
+
     inquirer
-        .prompt([
-            {
-                name: "exit",
-                type: "list",
-                message: "Have you completed your tasks?",
-                choices: ["Continue Working", "Exit BAMazon Manager"]
-            }
-        ]).then((inquirerResponse) => {
+        .prompt([WhatToDo])
+        .then((inquirerResponse) => {
             if (inquirerResponse.exit === "Continue Working") {
                 start();
             } else connection.end();
@@ -105,28 +98,20 @@ const viewLowInventory = () => {
 }
 
 const addToInventory = () => {
-    inquirer.prompt([
-        {
-            name: "productID",
-            message: "Input the product ID that you would like to purchase more of",
-            type: "input",
-            validate: value => {
-                if (!isNaN(value) && value <= 0) {
-                    return false;
-                } return true;
-            }
-        },
-        {
-            name: "purchaseAmount",
-            message: "Input the size of the order you would like to place.",
-            type: "input",
-            validate: value => {
-                if (!isNaN(value) && value <= 0) {
-                    return false;
-                } return true;
-            }
-        }
-    ]).then((answer) => {
+    const InputProductId = new InquirerQuestion("productID", "Input the product ID that you would like to purchase more of", "input")
+    InputProductId.validate = function (value) {
+        if (!isNaN(value) && value <= 0) {
+            return false;
+        } return true;
+    }
+    const InputPurchaseAmount = new InquirerQuestion("purchaseAmount", "Input the size of the order you would like to place.", "input")
+    InputPurchaseAmount.validate = function (value) {
+        if (!isNaN(value) && value <= 0) {
+            return false;
+        } return true;
+    }
+
+    inquirer.prompt([InputProductId, InputPurchaseAmount]).then((answer) => {
         let productId = parseInt(answer.productID);
         let purchaseQuantity = parseInt(answer.purchaseAmount);
         connection.query('SELECT * FROM products WHERE id=?', [productId], (error, res) => {
@@ -142,7 +127,7 @@ const addToInventory = () => {
                     id: productId
                 }
                 ],
-                function (error, results) {
+                (error, results) =>{
                     if (error) {
                         console.log(error)
                     } console.log(results)
@@ -154,55 +139,40 @@ const addToInventory = () => {
 }
 
 const addNewProduct = () => {
-    inquirer.prompt([
-        {
-            name: "newProduct",
-            message: "Please input the name of the new product you'd like to add.",
-            type: "input",
-            validation: (value) => {
-                if (value !== null) {
-                    return true
-                } else return false
-            }
-        },
-        {
-            name: "departmentName",
-            message: "What department does this item belong in?",
-            type: "input",
-            validation: value => {
-                if (value !== null) {
-                    return true
-                } else return false
-            }
-        },
-        {
-            name: "price",
-            message: "How much will this item be sold for?",
-            type: "input",
-            validation: value => {
-                if (!isNaN(value) && value !== null) {
-                    return true;
-                } else return false;
-            }
-        },
-        {
-            name: "quantity",
-            message: "How many would you like to initially order for sale?",
-            type: "input",
-            validation: value => {
-                if (isNaN(value)) {
-                    return false
-                } else return true;
-            }
-        }
-    ]).then(answer => {
+    
+    const InputProductName = new InquirerQuestion("newProduct", "Please input the name of the new product you'd like to add.", "input")
+    InputProductName.validate = function (value) {
+        if (value !== null) {
+            return true
+        } else return false
+    }
+    const InputDepartmentName = new InquirerQuestion("departmentName", "What department does this item belong in?", "input")
+    InputDepartmentName.validate = function (value) {
+        if (value !== null) {
+            return true
+        } else return false
+    }
+    const InputPrice = new InquirerQuestion("price", "How much will this item be sold for?", "input")
+    InputPrice.validate = function (value) {
+        if (!isNaN(value) && value !== null) {
+            return true;
+        } else return false;
+    }
+    const InputQuantity = new InquirerQuestion("quantity", "How many would you like to initially order for sale?", "input")
+    InputQuantity.validate = function (value) {
+        if (isNaN(value)) {
+            return false
+        } else return true;
+    }
+
+    inquirer.prompt([InputProductName, InputDepartmentName, InputPrice, InputQuantity]).then(answer => {
         let newProduct = answer.newProduct;
         let department = answer.departmentName;
         let price = answer.price;
         let quantity = answer.quantity || 0;
         connection.query(`INSERT INTO products (product_name,department_name,price,stock_quantity) 
                                         VALUES ('${newProduct}', '${department}', ${price}, ${quantity})`
-            ,(err, results) => {
+            , (err, results) => {
                 if (err) {
                     console.log(error)
                 }
