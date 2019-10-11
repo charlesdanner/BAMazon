@@ -3,6 +3,22 @@ const inquirer = require("inquirer");
 const { table } = require('table');
 const InquirerQuestion = require('./constructors')
 
+const WhatToDo = new InquirerQuestion('supervisorFunctions', "What would you like to do?", "list", ["View Product Sales By Department", "Create New Department", "Exit"])
+const QuestionOne = new InquirerQuestion("newDept", "What is the name of the new department you want to create?", "input")
+QuestionOne.validate = function (value) {
+    if (value.length > 3 && isNaN(value)) {
+        return true
+    } return false
+}
+const QuestionTwo = new InquirerQuestion("overHead", "What is the estimated overhead this new department will cost?", "input")
+QuestionTwo.validate = function (value) {
+    if (!isNaN(value) && value > 0) {
+        return true;
+    } else return false;
+}
+
+
+
 const connection = mysql.createConnection({
     host: "localhost",
 
@@ -22,7 +38,6 @@ connection.connect(err => {
 });
 
 const afterConnection = () => {
-    let WhatToDo = new InquirerQuestion('supervisorFunctions', "What would you like to do?", "list", ["View Product Sales By Department", "Create New Department", "Exit"])
     inquirer.prompt([WhatToDo])
         .then(inquirerResponse => {
             if (inquirerResponse.supervisorFunctions === "View Product Sales By Department") {
@@ -61,18 +76,6 @@ const viewProductSalesByDepartment = () => {
 }
 
 const createNewDepartment = () => {
-    const QuestionOne = new InquirerQuestion("newDept", "What is the name of the new department you want to create?", "input")
-    QuestionOne.validate = function (value) {
-        if (value.length > 3 && isNaN(value)) {
-            return true
-        } return false
-    }
-    const QuestionTwo = new InquirerQuestion("overHead", "What is the estimated overhead this new department will cost?", "input")
-    QuestionTwo.validate = function (value) {
-        if (!isNaN(value) && value > 0) {
-            return true;
-        } else return false;
-    }
     inquirer.prompt([QuestionOne, QuestionTwo])
         .then(answer => {
             const newDepartment = answer.newDept;

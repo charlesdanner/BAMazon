@@ -1,7 +1,49 @@
+const container = () => {
+
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const { table } = require('table');
 const InquirerQuestion = require('./constructors')
+
+const ManagerWhatToDo = new InquirerQuestion("action", "Select Desired Action", "list", ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"])
+const Exit = new InquirerQuestion("exit", "Have you completed your tasks?", "list", ["Continue Working", "Exit BAMazon Manager"])
+const InputProductId = new InquirerQuestion("productID", "Input the product ID that you would like to purchase more of", "input")
+InputProductId.validate = function (value) {
+    if (!isNaN(value) && value <= 0) {
+        return false;
+    } return true;
+}
+const InputPurchaseAmount = new InquirerQuestion("purchaseAmount", "Input the size of the order you would like to place.", "input")
+InputPurchaseAmount.validate = function (value) {
+    if (!isNaN(value) && value <= 0) {
+        return false;
+    } return true;
+}
+const InputProductName = new InquirerQuestion("newProduct", "Please input the name of the new product you'd like to add.", "input")
+InputProductName.validate = function (value) {
+    if (value !== null) {
+        return true
+    } else return false
+}
+const InputDepartmentName = new InquirerQuestion("departmentName", "What department does this item belong in?", "input")
+InputDepartmentName.validate = function (value) {
+    if (value !== null) {
+        return true
+    } else return false
+}
+const InputPrice = new InquirerQuestion("price", "How much will this item be sold for?", "input")
+InputPrice.validate = function (value) {
+    if (!isNaN(value) && value !== null) {
+        return true;
+    } else return false;
+}
+const InputQuantity = new InquirerQuestion("quantity", "How many would you like to initially order for sale?", "input")
+InputQuantity.validate = function (value) {
+    if (isNaN(value)) {
+        return false
+    } else return true;
+}
+
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -22,7 +64,7 @@ connection.connect(err => {
 });
 
 const start = () => {
-    const ManagerWhatToDo = new InquirerQuestion("action", "Select Desired Action", "list", ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"])
+    
     console.log(`-------------------------------------------------------------------------
     `)
     inquirer.prompt([ManagerWhatToDo])
@@ -50,11 +92,10 @@ const start = () => {
 }
 
 const exit = () => {
-    const WhatToDo = new InquirerQuestion("exit", "Have you completed your tasks?", "list", ["Continue Working", "Exit BAMazon Manager"])
-
+    
     inquirer
-        .prompt([WhatToDo])
-        .then((inquirerResponse) => {
+        .prompt([Exit])
+        .then(inquirerResponse => {
             if (inquirerResponse.exit === "Continue Working") {
                 start();
             } else connection.end();
@@ -98,19 +139,6 @@ const viewLowInventory = () => {
 }
 
 const addToInventory = () => {
-    const InputProductId = new InquirerQuestion("productID", "Input the product ID that you would like to purchase more of", "input")
-    InputProductId.validate = function (value) {
-        if (!isNaN(value) && value <= 0) {
-            return false;
-        } return true;
-    }
-    const InputPurchaseAmount = new InquirerQuestion("purchaseAmount", "Input the size of the order you would like to place.", "input")
-    InputPurchaseAmount.validate = function (value) {
-        if (!isNaN(value) && value <= 0) {
-            return false;
-        } return true;
-    }
-
     inquirer.prompt([InputProductId, InputPurchaseAmount]).then((answer) => {
         let productId = parseInt(answer.productID);
         let purchaseQuantity = parseInt(answer.purchaseAmount);
@@ -139,32 +167,6 @@ const addToInventory = () => {
 }
 
 const addNewProduct = () => {
-    
-    const InputProductName = new InquirerQuestion("newProduct", "Please input the name of the new product you'd like to add.", "input")
-    InputProductName.validate = function (value) {
-        if (value !== null) {
-            return true
-        } else return false
-    }
-    const InputDepartmentName = new InquirerQuestion("departmentName", "What department does this item belong in?", "input")
-    InputDepartmentName.validate = function (value) {
-        if (value !== null) {
-            return true
-        } else return false
-    }
-    const InputPrice = new InquirerQuestion("price", "How much will this item be sold for?", "input")
-    InputPrice.validate = function (value) {
-        if (!isNaN(value) && value !== null) {
-            return true;
-        } else return false;
-    }
-    const InputQuantity = new InquirerQuestion("quantity", "How many would you like to initially order for sale?", "input")
-    InputQuantity.validate = function (value) {
-        if (isNaN(value)) {
-            return false
-        } else return true;
-    }
-
     inquirer.prompt([InputProductName, InputDepartmentName, InputPrice, InputQuantity]).then(answer => {
         let newProduct = answer.newProduct;
         let department = answer.departmentName;
@@ -181,4 +183,5 @@ const addNewProduct = () => {
                 exit();
             })
     })
-}
+}}
+container()
