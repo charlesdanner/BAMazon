@@ -20,11 +20,8 @@ InputProductQuantity.validate = function (value) {
 
 const connection = mysql.createConnection({       //using the mysql node module to connect to my server
     host: "localhost",
-
     port: 3306,             //port number
-
     user: "root",               //my user name
-
     password: "root1",              //password and database name
     database: "bamazonDB"
 });
